@@ -101,15 +101,15 @@ class gameScene: SKScene
         }
         self.isSwing = true
         
-        //振り下ろす
-
-        let swingAction = SKAction.rotate(byAngle: -.pi, duration: 0.2)
         //当たり判定を有効化
         let activeCollision = SKAction.run
         {
             self.sword.physicsBody?.categoryBitMask =
             physicsCategory.sword
         }
+
+        //振り下ろす
+        let swingAction = SKAction.rotate(byAngle: -.pi, duration: 0.2)
         
         //ちょっと待とう
         let wait = SKAction.wait(forDuration: 0.1)
