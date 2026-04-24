@@ -1,3 +1,4 @@
+
 //
 //  ContentView.swift
 //  testGame
@@ -6,16 +7,22 @@
 //
 
 import SwiftUI
+import SpriteKit
 
-struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+struct ContentView: View
+{
+    var scene :SKScene
+    {
+        let scene = gameScene()
+        scene.size = CGSize(width: NSScreen.main?.frame.width ?? 1000, height: NSScreen.main?.frame.height ?? 1000)
+        scene.scaleMode = .fill
+        return scene
+    }
+    var body: some View
+    {
+        SpriteView(scene: scene)
+            .edgesIgnoringSafeArea(.all)
+            .navigationBarBackButtonHidden(true)
     }
 }
 
