@@ -244,16 +244,16 @@ class gameScene: SKScene
             swingSword()
             
         case 13, 126: //Ansi-W
-            position.y += playerMoveSpeed
+            playerNode.position.y += playerMoveSpeed
     
         case 0, 123: //Ansi-A
-            position.x -= playerMoveSpeed
+            playerNode.position.x -= playerMoveSpeed
             
         case 1, 125: //Ansi-S
-            position.y -= playerMoveSpeed
+            playerNode.position.y -= playerMoveSpeed
             
         case 2, 124: //Ansi-D
-            position.x += playerMoveSpeed
+            playerNode.position.x += playerMoveSpeed
             
         default:
             print(event.keyCode)
