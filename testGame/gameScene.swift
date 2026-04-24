@@ -16,11 +16,12 @@ class gameScene: SKScene
 
 
     let playerMoveSpeed: CGFloat = 10
-    let enemyMoveSpeed: CGFloat = 2
+    let enemyMoveSpeed: CGFloat = 2 * 1.5
 
     var isEnemyDead: Bool = false
     var isGameOver: Bool = false
     var isSwing: Bool = false
+    var isColorFlash: Bool = false
 
     var scoreLabel = SKLabelNode(fontNamed: "Gothic-Bold")
     var score = 0
@@ -88,7 +89,6 @@ class gameScene: SKScene
         
         //剣に物理ボディを適用
         sword.physicsBody = swordBody
-        
         playerNode.addChild(sword)
     }
     
@@ -102,6 +102,7 @@ class gameScene: SKScene
         self.isSwing = true
         
         //振り下ろす
+
         let swingAction = SKAction.rotate(byAngle: -.pi, duration: 0.2)
         //当たり判定を有効化
         let activeCollision = SKAction.run
@@ -121,14 +122,14 @@ class gameScene: SKScene
         }
         //戻す
         let removeAction = SKAction.rotate(byAngle: .pi, duration: 0.2)
-        
+
         //これまでの動作をシーケンス化
         let sequence = SKAction.sequence([
-            swingAction,
             activeCollision,
+            swingAction,
+            deactiveCollision,
             wait,
-            removeAction,
-            deactiveCollision
+            removeAction
         ])
         
         //剣にシーケンス化した動作を実行
@@ -174,13 +175,17 @@ class gameScene: SKScene
     //敵を倒した時のエフェクト
     func enemyRemove()
     {
-        if isEnemyDead
+        guard isEnemyDead
+        
+        else
         {
-            score += 1
-            updateScore()
             return
         }
-        else if !isEnemyDead
+
+        score += 1
+        updateScore()
+
+        if score >= 10
         {
             let fadeOut = SKAction.fadeOut(withDuration: 0.1)
             let fadeIn = SKAction.fadeIn(withDuration: 0.1)
@@ -195,7 +200,33 @@ class gameScene: SKScene
             ])
             
             enemyNode.run(flash)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2)
+            {
+                self.showStageClear()
+            }
         }
+    }
+    
+    func showStageClear()
+    {
+        playerNode.removeFromParent()
+        backgroundColor = .gray
+        let GameClearText = SKLabelNode(fontNamed: "gothic-Bold")
+        GameClearText.numberOfLines = 0
+        GameClearText.text = "Stage Clear\nScore: \(score)"
+        GameClearText.fontSize = 100
+        
+        GameClearText.fontColor = .red
+        GameClearText.colorBlendFactor = 1
+        let toBlue = SKAction.colorize(with: .blue, colorBlendFactor: 1, duration: 1)
+        let toRed = SKAction.colorize(with: .red, colorBlendFactor: 1, duration: 1)
+        let changeColor = SKAction.sequence([toBlue, toRed])
+        GameClearText.run(SKAction.repeatForever(changeColor))
+        
+        GameClearText.position = CGPoint(x: 700, y: 500)
+        addChild(GameClearText)
+        enemyNode.removeFromParent()
     }
 
     func showGameOver()
@@ -209,12 +240,13 @@ class gameScene: SKScene
         GameOVerText.fontColor = .red
         GameOVerText.position = CGPoint(x: 700, y: 500)
         addChild(GameOVerText)
+        enemyNode.removeFromParent()
         isGameOver = false
     }
     
     override func update(_ currentTime: TimeInterval)
     {
-        if isEnemyDead
+        if isEnemyDead && score < 10
         {
             spawnEnemy()
         }
@@ -273,6 +305,7 @@ extension gameScene: SKPhysicsContactDelegate
             !isEnemyDead
         {
             isEnemyDead = true
+           
             enemyRemove()
             print("敵を撃破")
         }
